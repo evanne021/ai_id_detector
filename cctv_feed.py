@@ -29,6 +29,16 @@ LABEL_MAP = {
     "person_without_id": "person_without_id",
 }
 
+def strict_label_mapping(raw_label):
+    mapped = LABEL_MAP.get(raw_label, None)
+    if mapped == "person_with_id":
+        return "person_with_id"
+    elif mapped == "person_without_id":
+        return "person_without_id"
+    else:
+        # Default to "person_without_id" for safety
+        return "person_without_id"
+
 model = YOLO(MODEL_PATH)
 print("Model classes:", model.names)
 
@@ -94,7 +104,7 @@ class CCTVFeed:
                     for box in r.boxes:
                         cls_id = int(box.cls[0])
                         raw_label = str(model.names[cls_id]).lower().strip()
-                        mapped_label = LABEL_MAP.get(raw_label, "person_with_id")
+                        mapped_label = strict_label_mapping(raw_label)
                         confidence = float(box.conf[0])
 
                         # Increment detection counter
